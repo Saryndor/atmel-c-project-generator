@@ -1,0 +1,209 @@
+{
+  "name": "atmel-c-project-generator",
+  "displayName": "Atmel C Project Generator",
+  "description": "Generate complete AVR/Atmel C projects using an easy interactive wizard.",
+  "version": "0.1.0",
+  "icon": "images/atmel-c-project-generator.png",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "Saryndor",
+      "email": "saryndor@duck.com",
+      "url": "https://github.com/Saryndor"
+    }
+  ],
+  "engines": {
+    "vscode": "^1.106.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Saryndor/atmel-c-project-generator.git"
+},
+  "categories": [
+    "Other",
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "workspaceContains:config.json"
+  ],
+  "contributes": {
+    "taskDefinitions": [
+      {
+        "type": "atmel-task",
+        "required": [],
+        "properties": {
+          "label": {
+            "type": "string",
+            "description": "Tasks of an Atmel C Projekt"
+          }
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "atmelGenerator.createProject",
+        "title": "Create Project",
+        "category": "Atmel"
+      },
+      {
+        "command": "atmelGenerator.openFuseCalculator",
+        "title": "Open Fuse Calculator",
+        "category": "Atmel"
+      },
+      {
+        "command": "atmelGenerator.reconfigureProject",
+        "title": "Reconfigure Project",
+        "category": "Atmel"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Atmel C Project Generator",
+      "properties": {
+        "atmelGenerator.defaultProjectPath": {
+          "order": 0,
+          "type": "string",
+          "default": "",
+          "description": "Default directory for new projects."
+        },
+        "atmelGenerator.defaultCompilerPath": {
+          "order": 1,
+          "type": "string",
+          "default": "avr-gcc",
+          "description": "Path or command for the AVR GCC compiler."
+        },
+        "atmelGenerator.defaultAvrdudePath": {
+          "order": 2,
+          "type": "string",
+          "default": "avrdude",
+          "description": "Path or command for avrdude."
+        },
+        "atmelGenerator.programmer": {
+          "order": 3,
+          "type": "string",
+          "default": "atmelice",
+          "description": "Default programmer ID (e.g. 'atmelice', 'usbasp', 'arduino'). Used if no project config is found.",
+          "enum": [
+            "atmelice",
+            "atmelice_isp",
+            "avrisp",
+            "avrispmkII",
+            "dragon_isp",
+            "usbasp",
+            "usbasp-clone",
+            "usbtiny",
+            "arduino",
+            "wiring",
+            "stk500",
+            "stk500v1",
+            "stk500v2",
+            "jtag2isp"
+          ],
+          "enumDescriptions": [
+            "Atmel-ICE (ARM/AVR)",
+            "Atmel-ICE (ISP mode)",
+            "Atmel AVR ISP",
+            "Atmel AVR ISP mkII",
+            "AVR Dragon in ISP mode",
+            "USBasp ISP and TPI programmer",
+            "Any usbasp clone with correct VID/PID",
+            "USBtiny simple USB programmer",
+            "Arduino",
+            "Wiring",
+            "Atmel STK500",
+            "Atmel STK500 Version 1.x firmware",
+            "Atmel STK500 Version 2.x firmware",
+            "Atmel JTAG ICE mkII in ISP mode"
+          ]
+        },
+        "atmelGenerator.port": {
+          "order": 4,
+          "type": "string",
+          "default": "usb",
+          "description": "Default communication port (e.g. 'usb', 'COM3', '/dev/ttyUSB0').  Used if no project config is found."
+        },
+        "atmelGenerator.bitClock": {
+          "order": 5,
+          "type": "number",
+          "default": 5,
+          "description": "Specify bit clock period (µs).  Used if no project config is found.",
+          "enum": [
+            "2000",
+            "1000",
+            "500",
+            "250",
+            "125",
+            "62",
+            "31",
+            "10",
+            "5",
+            "2",
+            "1",
+            "0.5",
+            "0.2"
+          ],
+          "enumDescriptions": [
+            "SPI-Freq. 500 Hz.",
+            "SPI-Freq. 1 kHz.",
+            "SPI-Freq. 2 kHz.",
+            "SPI-Freq. 4 kHz.",
+            "SPI-Freq. 8 kHz.",
+            "SPI-Freq. 16 kHz.",
+            "SPI-Freq. 32 kHz.",
+            "SPI-Freq. 93.75 kHz.",
+            "SPI-Freq. 187.5 kHz.",
+            "SPI-Freq. 375 kHz.",
+            "SPI-Freq. 750 kHz.",
+            "SPI-Freq. 1.5 MHz.",
+            "SPI-Freq. 3 MHz."
+          ]
+        },
+        "atmelGenerator.enableDevContainer": {
+          "order": 6,
+          "type": "boolean",
+          "default": false,
+          "description": "Enable DevContainer support when generating new projects."
+        },
+        "atmelGenerator.devContainerTemplatePath": {
+          "order": 7,
+          "type": "string",
+          "default": "",
+          "description": "Optional: Path to a custom DevContainer template directory."
+        },
+        "atmelGenerator.defaultCPUFrequency": {
+          "order": 8,
+          "type": "number",
+          "default": 1000000,
+          "description": "Default CPU frequency in Hz for new projects."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.106.1",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.48.1",
+    "eslint": "^9.39.1",
+    "esbuild": "^0.27.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2"
+  }
+}

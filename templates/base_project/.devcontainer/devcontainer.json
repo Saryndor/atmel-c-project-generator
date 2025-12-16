@@ -1,0 +1,24 @@
+
+{
+	"name": "${localWorkspaceFolderBasename}",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/workspace/${localWorkspaceFolderBasename},type=bind"
+    ],
+	"customizations": {
+    	"vscode": {
+      		"extensions": ["dbaeumer.vscode-eslint",
+			               "actboy168.tasks",
+						   "ms-vscode.cpptools",
+					       "prettier.prettier-vscode"]
+    	}
+  	},
+	"runArgs": [
+		"--name=avr-dev-${localWorkspaceFolderBasename}",
+		"--device=/dev/bus/usb",
+		"--userns=keep-id"
+	]
+}

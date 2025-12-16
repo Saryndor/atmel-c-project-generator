@@ -1,0 +1,27 @@
+{
+  "name": "AVR VS Code Extension Devcontainer",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      // Node LTS-Variante des Base-Images
+      "VARIANT": "20-bullseye"
+    }
+  },
+
+  // User im Container (kommt vom Base-Image)
+  // "remoteUser": "node",
+
+  // Praktische VS Code Extensions für Extension-Entwicklung
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "amodio.tsl-problem-matcher", 
+        "ms-vscode.extension-test-runner",
+        "connor4312.esbuild-problem-matchers"
+      ]
+    }
+  }
+}

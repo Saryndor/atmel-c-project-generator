@@ -1,0 +1,12 @@
+{
+    "id": "atmel-project-config",
+    "protected": false,
+    "project": "{{PROJECT_NAME}}",
+    "mcu": "{{MCU}}",
+    "cpu_freq": "{{CPU_FREQ}}",
+    "programmer": "{{PROGRAMMER}}",
+    "partno": "{{PARTNO}}",
+    "port": "{{PORT}}",
+    "bitClock": {{BITCLOCK}},
+    "io_def": "{{IO_DEF}}"
+}
