@@ -73,6 +73,7 @@ export class ProjectConfig {
      */
     public toConfigJson(): any {
         return {
+            id: "atmel-project-config",
             project: this.options.project,
             mcu: this.options.mcu,
             partno: this.options.partno, // Save distinct partno
@@ -83,4 +84,5 @@ export class ProjectConfig {
             io_def: this.ioDefine
         };
     }
+    
 }

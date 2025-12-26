@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { Logger } from "../logger";
-import { createCleanTask } from "../tasks/createCleanTask"; // Import the task logic
+import { createCleanTask } from "../tasks/createCleanTask";
+import { ConfigService } from "../services/ConfigService";
 
 /**
  * Registers the status bar button and the command to execute the clean task.
@@ -19,11 +20,16 @@ export function registerCleanButton(context: vscode.ExtensionContext) {
 
     // Helper to update visibility based on workspace state
     const updateVisibility = () => {
-        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-            cleanButton.show();
-        } else {
-            cleanButton.hide();
+        const folders = vscode.workspace.workspaceFolders;
+        if (folders && folders.length > 0) {
+            // Check first folder for config.json with correct ID
+            const root = folders[0].uri.fsPath;
+            if (ConfigService.isAtmelProject(root)) {
+                cleanButton.show();
+                return;
+            }
         }
+        cleanButton.hide();
     };
 
     // Initial check and event listener
@@ -31,13 +37,21 @@ export function registerCleanButton(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.workspace.onDidChangeWorkspaceFolders(updateVisibility)
     );
+
+    // Watch for config.json changes (Created/Deleted/Changed)
+    const watcher = vscode.workspace.createFileSystemWatcher("**/config.json");
+    watcher.onDidCreate(updateVisibility);
+    watcher.onDidDelete(updateVisibility);
+    watcher.onDidChange(updateVisibility);
+    context.subscriptions.push(watcher);
+
     context.subscriptions.push(cleanButton);
 
     // ---------------------------------------------------------
     // 2. Register the Command
     // ---------------------------------------------------------
     const cleanCommand = vscode.commands.registerCommand("atmelGenerator.action.clean", async () => {
-        
+
         // Validation: We need at least one open folder
         if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
             vscode.window.showErrorMessage("No workspace open. Cannot clean.");

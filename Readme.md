@@ -2,12 +2,13 @@
 
 A VS Code extension to quickly and easily create, configure, and develop C/C++ projects for Atmel AVR microcontrollers (ATmega, ATtiny).
 
-This extension relies on standard tools (`avr-gcc`, `make`, `avrdude`) and integrates them seamlessly into VS Code, including fully automatic IntelliSense configuration and Fuse Bit calculation.
+This extension relies on standard tools (`avr-gcc`, `make`, `avrdude`) and integrates them seamlessly into VS Code, including fully automatic IntelliSense configuration, Timer Calculator, and Fuse Bit calculation.
 
 ## Features
 
   * **Project Scaffolding:** Creates a clean and simple project structure (`src`, `include`, `lib`) with a wizard.
   * **Integrated Fuse Calculator:** Calculate Fuse Bits (Low, High, Extended) directly within VS Code, without needing to visit external websites.
+  * **Integrated Timer Calculator:** Calculate register values and generate code examples.
   * **Reconfigure Function:** Change MCU, clock frequency, or programmer at any time – all files (Makefile, VS Code Config) are synchronized immediately.
   * **DevContainer Support:** Optional support for Docker-based development environments.
   * **Auto-IntelliSense:** Automatically configures `c_cpp_properties.json`. It detects the compiler's system include paths and sets the correct defines 
@@ -82,6 +83,52 @@ No need to dig through datasheets for standard fuses:
 2.  Select **"Atmel: Open Fuse Calculator"**.
 
 ![](images/FUSE_Calculator.png)
+
+### 5\. Timer Calculator
+
+Calculate register values for TCCxx, OCRxx, TIMSKx, and generate empty ISR-Routine.
+
+1.  Open the Command Palette.
+2.  Select **"Atmel: Open Timer Calculator"**.
+
+![](images/timer_calculator_1.png)
+
+Result
+
+![](images/timer_calculator_2.png)
+
+
+Generated Code
+
+```c
+/*
+ * Timer 1 Configuration (CTC Mode)
+ * Target: 125 ticks @ Prescaler 64
+ * CAUTION: Register names (TCCR1A, etc.) follow ATmega328P standard.
+ * Check your specific MCU datasheet if registers differ (e.g. ATtiny).
+ */
+
+// 1. Reset Control Registers
+TCCR1A = 0;
+TCCR1B = 0;
+
+// 2. Set CTC Mode (Clear Timer on Compare Match)
+TCCR1B |= (1 << WGM12);
+
+// 3. Set Prescaler to 64
+TCCR1B |= (1 << CS11) | (1 << CS10);
+
+// 4. Set Compare Match Value
+OCR1A = 124;
+
+// 5. Enable Compare Match Interrupt
+TIMSK1 |= (1 << OCIE1A);
+
+// --- Interrupt Service Routine ---
+ISR(TIMER1_COMPA_vect) {
+    // TODO: Execute periodic code here
+}
+```
 
 ## Generated Project Structure
 

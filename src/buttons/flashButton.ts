@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { Logger } from "../logger";
-import { createFlashTask } from "../tasks/createFlashTask"; // Import the task logic
+import { createFlashTask } from "../tasks/createFlashTask";
+import { ConfigService } from "../services/ConfigService";
 
 /**
  * Registers the status bar button and the command to execute the flash task.
@@ -19,11 +20,16 @@ export function registerFlashButton(context: vscode.ExtensionContext) {
 
     // Helper to update visibility based on workspace state
     const updateVisibility = () => {
-        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-            flashButton.show();
-        } else {
-            flashButton.hide();
+        const folders = vscode.workspace.workspaceFolders;
+        if (folders && folders.length > 0) {
+            // Check first folder for config.json with correct ID
+            const root = folders[0].uri.fsPath;
+            if (ConfigService.isAtmelProject(root)) {
+                flashButton.show();
+                return;
+            }
         }
+        flashButton.hide();
     };
 
     // Initial check and event listener
@@ -31,13 +37,21 @@ export function registerFlashButton(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.workspace.onDidChangeWorkspaceFolders(updateVisibility)
     );
+
+    // Watch for config.json changes (Created/Deleted/Changed)
+    const watcher = vscode.workspace.createFileSystemWatcher("**/config.json");
+    watcher.onDidCreate(updateVisibility);
+    watcher.onDidDelete(updateVisibility);
+    watcher.onDidChange(updateVisibility);
+    context.subscriptions.push(watcher);
+
     context.subscriptions.push(flashButton);
 
     // ---------------------------------------------------------
     // 2. Register the Command
     // ---------------------------------------------------------
     const flashCommand = vscode.commands.registerCommand("atmelGenerator.action.flash", async () => {
-        
+
         // Validation: We need at least one open folder
         if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
             vscode.window.showErrorMessage("No workspace open. Cannot flash.");

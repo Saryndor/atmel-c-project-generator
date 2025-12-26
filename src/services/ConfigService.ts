@@ -72,4 +72,22 @@ export class ConfigService {
             bitClock: bc ? String(bc) : "5" // Default to 5 if setting is missing
         };
     }
+
+    /**
+     * Checks if the given workspace folder contains a valid config.json
+     * with the correct ID.
+     */
+    public static isAtmelProject(folderPath: string): boolean {
+        try {
+            const configPath = path.join(folderPath, "config.json");
+            if (!fs.existsSync(configPath)) {
+                return false;
+            }
+            const content = fs.readFileSync(configPath, "utf8");
+            const json = JSON.parse(content);
+            return json.id === "atmel-project-config";
+        } catch (error) {
+            return false;
+        }
+    }
 }

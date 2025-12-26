@@ -13,6 +13,7 @@ import { FuseCalculatorPanel } from "./panels/FuseCalculatorPanel";
 import { ConfigService } from "./services/ConfigService";
 import { FuseHardwareConfig } from "./services/AvrDudeService";
 import { reconfigureProject } from "./commands/reconfigureProject";
+import { TimerCalculatorPanel } from "./panels/timerCalculatorPanel";
 
 
 export function activate(context: vscode.ExtensionContext) {
@@ -32,6 +33,25 @@ export function activate(context: vscode.ExtensionContext) {
     registerFlashButton(context);
     registerBuildButton(context);
     registerCleanButton(context);
+
+    const checkContext = () => {
+        let isActive = false;
+        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+            const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
+            isActive = ConfigService.isAtmelProject(root);
+        }
+        vscode.commands.executeCommand('setContext', 'atmelProjectActive', isActive);
+    };
+    
+    // Initial Check
+    checkContext();
+    
+    // Watcher für Context
+    const configWatcher = vscode.workspace.createFileSystemWatcher("**/config.json");
+    configWatcher.onDidCreate(checkContext);
+    configWatcher.onDidDelete(checkContext);
+    configWatcher.onDidChange(checkContext);
+    context.subscriptions.push(configWatcher);
 
     const disposable = vscode.commands.registerCommand(
         "atmelGenerator.createProject",
@@ -179,6 +199,30 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     context.subscriptions.push(reconfigureCmd);
+
+    const timerCalcCommand = vscode.commands.registerCommand("atmelGenerator.openTimerCalculator", () => {
+        
+        let projectFreq = 1000000; // Fallback Default: 1 MHz
+
+        if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+            try {
+                const root = vscode.workspace.workspaceFolders[0].uri.fsPath;
+                const configPath = path.join(root, "config.json");
+                
+                if (fs.existsSync(configPath)) {
+                    const content = fs.readFileSync(configPath, "utf8");
+                    const json = JSON.parse(content);
+                    if (json.cpu_freq) {
+                        projectFreq = Number(json.cpu_freq);
+                    }
+                }
+            } catch (e) {
+                Logger.warn("Could not read cpu_freq from config.json, using default.");
+            }
+        }
+        TimerCalculatorPanel.createOrShow(context.extensionUri, projectFreq);
+    });
+    context.subscriptions.push(timerCalcCommand);
 }
 
 export function deactivate() {
