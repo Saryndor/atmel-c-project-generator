@@ -2,7 +2,7 @@
   "name": "atmel-c-project-generator",
   "displayName": "Atmel C Project Generator",
   "description": "Generate complete AVR/Atmel C projects using an easy interactive wizard.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "icon": "images/atmel-c-project-generator.png",
   "license": "MIT",
   "publisher": "Saryndor",

@@ -6,19 +6,21 @@
     },
     "workspaceFolder": "/workspace/${localWorkspaceFolderBasename}",
     "mounts": [
-        "source=${localWorkspaceFolder},target=/workspace/${localWorkspaceFolderBasename},type=bind"
+        "source=${localWorkspaceFolder},target=/workspace/${localWorkspaceFolderBasename},type=bind",
+		"source=${localEnv:SSH_AUTH_SOCK},target=/tmp/vscode-ssh-auth.sock,type=bind"
     ],
 	"customizations": {
     	"vscode": {
-      		"extensions": ["dbaeumer.vscode-eslint",
+      		"extensions": ["saryndor.atmel-c-project-generator",
+			               "dbaeumer.vscode-eslint",
 			               "actboy168.tasks",
 						   "ms-vscode.cpptools",
-					       "prettier.prettier-vscode"]
+					       "esbenp.prettier-vscode"]
     	}
   	},
 	"runArgs": [
 		"--name=avr-dev-${localWorkspaceFolderBasename}",
-		"--device=/dev/bus/usb",
-		"--userns=keep-id"
+		"--userns=keep-id",
+		"-v", "/dev/bus/usb:/dev/bus/usb"
 	]
 }
